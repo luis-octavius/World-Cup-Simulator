@@ -15,6 +15,7 @@ body {
     height: inherit;
     width: inherit;
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -31,4 +32,15 @@ h1 {
     border-radius: 10px;
     width: 90%;
     height: 80%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.group-div {
+    background: #f0f0f0;
+    padding: 20px; 
+    border-radius: 8px;
+    text-align: center;
 }
