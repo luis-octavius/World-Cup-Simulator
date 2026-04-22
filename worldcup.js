@@ -2,6 +2,8 @@ export class WorldCup {
     teams; 
     #teamsPromise;
     groups;
+    groupMatches = new Map();
+    isGroupStage = true;
 
     constructor (gitUser) {
         this.gitUser = gitUser;
@@ -25,7 +27,6 @@ export class WorldCup {
             }         
 
             const teamsResult = await response.json();
-            console.log(teamsResult)
 
             this.teams = teamsResult;
         } catch (err) {
@@ -49,12 +50,54 @@ export class WorldCup {
         for (let i = 0; i < 8; i++) {
             const letter = letters[i];
             let start = i * 4;
-            groups.set(letter, [ teams[start], teams[start + 1], teams[start + 2], teams[start + 3]]);
-        }
+            const teamsArray = [ teams[start], teams[start + 1], teams[start + 2], teams[start + 3]]
 
-        console.log("groups: ", groups)
+            // adiciona pontos no objeto time para a fase de grupos
+            for (let j = 0; j < teamsArray.length; j++) {
+                teamsArray[j].points = 0;
+                teamsArray[j].goalsDiff = 0;
+            }
+
+            groups.set(letter, teamsArray);
+        }
 
         this.groups = groups;
         return groups;
+    }
+
+    // gera e retorna todas as partidas
+    async generateMatches () {
+        const groups = await this.createGroups();
+
+        for (const [k, v] of groups.entries()) {
+            this.groupMatches.set(k, this.createGroupMatches(v));
+        } 
+
+        console.log("groupMatches: ", this.groupMatches);
+    }
+
+    createGroupMatches(group) {
+        const matches = [];
+
+        for (let i = 0; i <= 2; i++) {
+            const team = group[i];
+            for (let j = i + 1; j <= 3; j++) {
+               const adversary = group[j]; 
+               matches.push(this.createMatch(team, adversary));
+            }
+        }
+
+        return matches; 
+    }
+
+    // gera uma partida única com todos os atributos que a partida deve ter
+    createMatch(teamOne, teamTwo) {
+        return {
+            teamOne: teamOne, 
+            teamTwo: teamTwo, 
+            goalsTeamOne: 0, 
+            goalsTeamTwo: 0, 
+            result: 0
+        }
     }
 }
