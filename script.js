@@ -1,22 +1,29 @@
 import { WorldCup } from "./worldcup.js";
 
 const container = document.querySelector('.container');
+const app = document.querySelector('#app');
 
 function main() {
     const worldCup = new WorldCup('luis-octavius');
     
-    const groups = worldCup.createGroups();
-    renderGroups(groups); 
+    // const groups = worldCup.createGroups();
+    // renderGroups(groups); 
+
+    worldCup.generateMatches();
 }
 
 async function renderGroups(groups) {
     const resolvedGroups = await groups; 
 
     for (const [k, v] of resolvedGroups.entries()) {
-        console.log("Key: ", k);
-        console.log("Value: ", v);
         createGroupEl(k, v);
     }
+
+    const buttonInit = document.createElement('button');
+    buttonInit.classList.add('btn-init');
+    buttonInit.textContent = "Initiate rounds"
+
+    app.append(buttonInit);
 }
 
 function createGroupEl(letter, teams) {
@@ -37,5 +44,7 @@ function createGroupEl(letter, teams) {
 
     container.append(divGroup);
 }
+
+
 
 main();
