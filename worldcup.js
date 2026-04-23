@@ -73,7 +73,7 @@ export class WorldCup {
             this.groupMatches.set(k, this.createGroupMatches(v));
         } 
 
-        console.log("groupMatches: ", this.groupMatches);
+        this.initGroupMatches();
     }
 
     createGroupMatches(group) {
@@ -97,7 +97,46 @@ export class WorldCup {
             teamTwo: teamTwo, 
             goalsTeamOne: 0, 
             goalsTeamTwo: 0, 
-            result: 0
         }
+    }
+
+    initGroupMatches() {
+        for (const [group, matches] of this.groupMatches.entries()) {
+            let matchesResult = [];
+            for (let i = 0; i < 6; i++) {
+                const match = matches[i];
+                matchesResult.push(this.runMatch(match));                        
+            }
+            this.groupMatches.set(group, matchesResult);
+        }
+
+        console.log("Matches after init: ", this.groupMatches);
+    }
+
+    runMatch(match) {
+        let goalsTeamOne = 0; 
+        let goalsTeamTwo = 0;
+
+        for (let i = 0; i < 90; i++) {
+            const possibility = Math.floor(Math.random() * 50);
+            if (possibility === 1) {
+                goalsTeamOne++;
+            } else if (possibility === 2) {
+                goalsTeamTwo++;
+            }
+        }
+
+        if (goalsTeamOne === goalsTeamTwo && !this.isGroupStage) {
+            this.runPenalty();
+        }
+
+        match.goalsTeamOne = goalsTeamOne;
+        match.goalsTeamTwo = goalsTeamTwo;
+
+        return match;
+    }
+
+    runPenalty() {
+
     }
 }
