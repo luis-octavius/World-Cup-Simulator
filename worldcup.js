@@ -37,15 +37,15 @@ export class WorldCup {
 
     async #setChampion() {
         const URL = "https://development-internship-api.geopostenergy.com/WorldCup/FinalResult";
-        const finalMatch = this.#finalMatches.get("allMatches").get("finals").matches;
+        const finalMatch = this.#finalMatches?.get("allMatches")?.get("finals")?.matches;
         if (!finalMatch) {
             console.error("Error getting the final match");
             return;
         }
 
         const body = {
-            "equipeA": finalMatch.teamOne.token,
-            "equipeB": finalMatch.teamTwo.token,
+            "equipeA": finalMatch.teamOne?.token,
+            "equipeB": finalMatch.teamTwo?.token,
             "golsEquipeA": finalMatch.goalsTeamOne,
             "golsEquipeB": finalMatch.goalsTeamTwo,
             "golsPenaltyTimeA": finalMatch.goalsPenaltyTeamOne ?? 0,
@@ -68,7 +68,6 @@ export class WorldCup {
             }
 
             const result = await response.json();            
-            console.log(result);
             return result;
 
         } catch(err) {
@@ -110,15 +109,19 @@ export class WorldCup {
     }
 
     // gera e retorna todas as partidas
-    async generateMatches () {
-        const groups = await this.createGroups();
+    async generateMatches (groups) {
+        // const groups = await this.createGroups();
 
         for (const [k, v] of groups.entries()) {
             this.#groupsMatches.set(k, this.createGroupMatches(v));
         } 
 
-        this.initGroupMatches();
-        return this.#groupsMatches;
+        const finalMatches = this.initGroupMatches();
+
+        return {
+            groupMatches: this.#groupsMatches,
+            finalMatches,
+        };
     }
 
     createGroupMatches(group) {
@@ -152,9 +155,11 @@ export class WorldCup {
 
         this.#isGroupStage = false;
 
-        this.initFinalMatches();
+        const finalMatches = this.initFinalMatches();
 
         this.#setChampion();
+
+        return finalMatches;
     }
 
     // gera uma partida única com todos os atributos que a partida deve ter
@@ -179,7 +184,7 @@ export class WorldCup {
             this.#groupsMatches.set(group, matchesResult);
         }
 
-        this.#classifyTeams();
+        return this.#classifyTeams();
     }
 
     initFinalMatches() {
@@ -245,7 +250,6 @@ export class WorldCup {
         matchesResult.set("finals", { matches: finalsResult });
         this.#finalMatches.set("allMatches", matchesResult);
 
-        console.log(this.#finalMatches);
         return matchesResult;
     }
 
@@ -272,7 +276,7 @@ export class WorldCup {
             this.#groups.set(group, classified);
         }
 
-        this.createFinalMatches();
+        return this.createFinalMatches();
     }
 
     #rankGroup(group, groupMatches) {
