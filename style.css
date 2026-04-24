@@ -87,11 +87,57 @@ h1 {
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
+.champion-card {
+    grid-column: 1 / -1;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #d1a72c;
+    background: linear-gradient(135deg, #fff4cc 0%, #f8de8a 100%);
+    box-shadow: 0 8px 22px rgba(126, 79, 0, 0.2);
+    text-align: center;
+}
+
+.champion-label {
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #7d5b00;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.champion-name {
+    font-size: 1.5rem;
+    color: #1f2f46;
+    margin-bottom: 6px;
+}
+
+.champion-detail {
+    color: #35475f;
+    font-size: 0.95rem;
+}
+
 .match-block {
     background: #ffffff;
     border: 1px solid #d2dfed;
     border-radius: 10px;
     padding: 12px;
+}
+
+.match-block.round-sixteen {
+    border-left: 5px solid #2e90a6;
+}
+
+.match-block.round-quarter {
+    border-left: 5px solid #36936e;
+}
+
+.match-block.round-semi {
+    border-left: 5px solid #c87f2f;
+}
+
+.match-block.round-final {
+    border-left: 5px solid #9d4edd;
+    background: #f8f2ff;
 }
 
 .match-block h3 {

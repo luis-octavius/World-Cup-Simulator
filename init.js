@@ -122,22 +122,45 @@ function renderGroupMatches(groupMatches, targetContainer) {
 function renderFinalStages(finalStages, targetContainer) {
     targetContainer.innerHTML = '';
 
+    const finalMatch = finalStages.get('finals')?.matches;
+    if (finalMatch) {
+        const championCard = createChampionCard(finalMatch);
+        targetContainer.append(championCard);
+    }
+
     const rounds = [
-        ['Oitavas de final', finalStages.get('roundOfSixteen')?.matches ?? []],
-        ['Quartas de final', finalStages.get('quarterFinals')?.matches ?? []],
-        ['Semifinais', finalStages.get('semifinals')?.matches ?? []],
-        ['Final', [finalStages.get('finals')?.matches].filter(Boolean)],
+        {
+            title: 'Oitavas de final',
+            matches: finalStages.get('roundOfSixteen')?.matches ?? [],
+            className: 'round-sixteen',
+        },
+        {
+            title: 'Quartas de final',
+            matches: finalStages.get('quarterFinals')?.matches ?? [],
+            className: 'round-quarter',
+        },
+        {
+            title: 'Semifinais',
+            matches: finalStages.get('semifinals')?.matches ?? [],
+            className: 'round-semi',
+        },
+        {
+            title: 'Final',
+            matches: [finalStages.get('finals')?.matches].filter(Boolean),
+            className: 'round-final',
+        },
     ];
 
-    for (const [title, matches] of rounds) {
+    for (const round of rounds) {
         const wrapper = document.createElement('div');
         wrapper.classList.add('match-block');
+        wrapper.classList.add(round.className);
 
         const roundTitle = document.createElement('h3');
-        roundTitle.textContent = title;
+        roundTitle.textContent = round.title;
         wrapper.append(roundTitle);
 
-        for (const match of matches) {
+        for (const match of round.matches) {
             const item = document.createElement('p');
             item.textContent = formatMatch(match);
             wrapper.append(item);
@@ -145,6 +168,36 @@ function renderFinalStages(finalStages, targetContainer) {
 
         targetContainer.append(wrapper);
     }
+}
+
+function createChampionCard(finalMatch) {
+    const champion = getMatchWinner(finalMatch);
+
+    const card = document.createElement('div');
+    card.classList.add('champion-card');
+
+    const label = document.createElement('p');
+    label.classList.add('champion-label');
+    label.textContent = 'Campeão';
+
+    const name = document.createElement('h3');
+    name.classList.add('champion-name');
+    name.textContent = champion.nome;
+
+    const detail = document.createElement('p');
+    detail.classList.add('champion-detail');
+    detail.textContent = formatMatch(finalMatch);
+
+    card.append(label, name, detail);
+    return card;
+}
+
+function getMatchWinner(match) {
+    if (match.goalsTeamOne > match.goalsTeamTwo) return match.teamOne;
+    if (match.goalsTeamTwo > match.goalsTeamOne) return match.teamTwo;
+
+    if (match.goalsPenaltyTeamOne > match.goalsPenaltyTeamTwo) return match.teamOne;
+    return match.teamTwo;
 }
 
 function formatMatch(match) {

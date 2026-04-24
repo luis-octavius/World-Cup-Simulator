@@ -75,7 +75,7 @@ world-cup-simulator/
 - Em caso de empate, decisão por pênaltis
 - Sorteio dos confrontos baseado na classificação
 
-## 🖥️ Interface
+## Interface
 
 A interface é totalmente responsiva e inclui:
 
