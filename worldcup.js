@@ -75,6 +75,7 @@ export class WorldCup {
         } 
 
         this.initGroupMatches();
+        return this.groupsMatches;
     }
 
     createGroupMatches(group) {
@@ -91,6 +92,30 @@ export class WorldCup {
         return matches; 
     }
 
+    createFinalMatches() {
+        const teams = []
+
+        for (const groupTeams of this.groups.values()) {
+           teams.push(...groupTeams); 
+        }
+
+        console.log("teams: ", teams)
+
+        for (let i = 0; i < 8; i++) {
+            // seleciona o primeiro do grupo para enfrentar o segundo do grupo seguinte
+            const teamOne = teams[i];
+            const teamTwo = teams[(i + 1) % 8];
+
+            this.finalMatches.set(i + 1, this.createMatch(teamOne, teamTwo));
+        }
+
+        this.isGroupStage = false;
+
+        console.log("final matches: ", this.finalMatches);
+
+        this.initFinalMatches();
+    }
+
     // gera uma partida única com todos os atributos que a partida deve ter
     createMatch(teamOne, teamTwo) {
         return {
@@ -98,6 +123,8 @@ export class WorldCup {
             teamTwo: teamTwo, 
             goalsTeamOne: 0, 
             goalsTeamTwo: 0, 
+            goalsPenaltyTeamOne: undefined, 
+            goalsPenaltyTeamTwo: undefined,
         }
     }
 
@@ -111,10 +138,17 @@ export class WorldCup {
             this.groupsMatches.set(group, matchesResult);
         }
 
-        console.log("Matches after init: ", this.groupsMatches);
-        console.log(this.groups);
-
         this.#classifyTeams();
+    }
+
+    initFinalMatches() {
+        let matchesResult = [];
+
+        for (const [id, match] of this.finalMatches.entries()) {
+            matchesResult.push(this.#runMatch(match));
+        }
+
+        console.log("matchesResult: ", matchesResult);
     }
 
     #classifyTeams() {
@@ -122,7 +156,17 @@ export class WorldCup {
             this.#rankGroup(group, matches);
         }
 
-        console.log("Group after pointsUp: ", this.groups);
+
+        for (const [group, teams] of this.groups.entries()) {
+            // rankeia os times baseados nos critérios padrões 
+            teams.sort((a, b) => this.#compareTeamsPoints(a, b));
+            // muta o grupo original com os times classificados
+            const classified = teams.slice(0, 2);
+            this.groups.set(group, classified);
+        }
+
+
+        this.createFinalMatches();
     }
 
     #rankGroup(group, groupMatches) {
@@ -178,7 +222,7 @@ export class WorldCup {
     
 
     #compareTeamsPoints(teamOne, teamTwo) {
-        if (teamOne.points > teamTwoPoints) {
+        if (teamOne.points > teamTwo.points) {
             return -1;
         }
 
@@ -207,6 +251,7 @@ export class WorldCup {
         }
     }
 
+
     #runMatch(match) {
         let goalsTeamOne = 0; 
         let goalsTeamTwo = 0;
@@ -221,7 +266,10 @@ export class WorldCup {
         }
 
         if (goalsTeamOne === goalsTeamTwo && !this.isGroupStage) {
-            this.#runPenalty();
+            const { scoreOne, scoreTwo } = this.#runPenalty();
+            match.goalsPenaltyTeamOne = scoreOne; 
+            match.goalsPenaltyTeamTwo = scoreTwo;
+            console.log(`Penalty Result: ${match.teamOne.nome} ${match.goalsPenaltyTeamOne} X ${match.goalsPenaltyTeamTwo} ${match.teamTwo.nome}`)
         }
 
         match.goalsTeamOne = goalsTeamOne;
@@ -231,7 +279,26 @@ export class WorldCup {
     }
 
     #runPenalty() {
-       console.log("Penalty...") 
+        let scoreOne = 0;
+        let scoreTwo = 0;
+
+        for (let i = 0; i < 5; i++) {
+            const goalOne = Math.random() < 0.6;
+            if (goalOne) scoreOne++;
+
+            const goalTwo = Math.random() < 0.6;
+            if (goalTwo) scoreTwo++;
+        }
+
+        while (scoreOne === scoreTwo) {
+            const goalOne = Math.random() < 0.5;
+            if (goalOne) scoreOne++;
+
+            const goalTwo = Math.random() < 0.5;
+            if (goalTwo) scoreTwo++;
+        }
+
+        return { scoreOne, scoreTwo };
     }
 
     
