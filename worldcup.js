@@ -2,7 +2,8 @@ export class WorldCup {
     teams; 
     #teamsPromise;
     groups;
-    groupMatches = new Map();
+    groupsMatches = new Map();
+    finalMatches = new Map();
     isGroupStage = true;
 
     constructor (gitUser) {
@@ -70,7 +71,7 @@ export class WorldCup {
         const groups = await this.createGroups();
 
         for (const [k, v] of groups.entries()) {
-            this.groupMatches.set(k, this.createGroupMatches(v));
+            this.groupsMatches.set(k, this.createGroupMatches(v));
         } 
 
         this.initGroupMatches();
@@ -101,19 +102,112 @@ export class WorldCup {
     }
 
     initGroupMatches() {
-        for (const [group, matches] of this.groupMatches.entries()) {
+        for (const [group, matches] of this.groupsMatches.entries()) {
             let matchesResult = [];
             for (let i = 0; i < 6; i++) {
                 const match = matches[i];
-                matchesResult.push(this.runMatch(match));                        
+                matchesResult.push(this.#runMatch(match));                        
             }
-            this.groupMatches.set(group, matchesResult);
+            this.groupsMatches.set(group, matchesResult);
         }
 
-        console.log("Matches after init: ", this.groupMatches);
+        console.log("Matches after init: ", this.groupsMatches);
+        console.log(this.groups);
+
+        this.#classifyTeams();
     }
 
-    runMatch(match) {
+    #classifyTeams() {
+        for (const [group, matches] of this.groupsMatches.entries()) {
+            this.#rankGroup(group, matches);
+        }
+
+        console.log("Group after pointsUp: ", this.groups);
+    }
+
+    #rankGroup(group, groupMatches) {
+       // compara os pontos dos times 
+        for (let i = 0; i < 6; i++) {
+            const match = groupMatches[i];
+            const teamOne = match.teamOne; 
+            const teamTwo = match.teamTwo;
+
+            // calcula os pontos e o saldo de gols
+            const { teamOnePoint, teamTwoPoint } = this.#calculateMatchGroupResult(match);
+            const { goalsDiffTeamOne, goalsDiffTeamTwo } = this.#calculateGoalsDiff(match.goalsTeamOne, match.goalsTeamTwo);
+
+
+            // adiciona os pontos e saldo de gols
+            teamOne.points += teamOnePoint;
+            teamOne.goalsDiff += goalsDiffTeamOne;
+            teamTwo.points += teamTwoPoint;
+            teamTwo.goalsDiff += goalsDiffTeamTwo;
+
+
+            this.#mutateTeamInGroup(group, teamOne);
+            this.#mutateTeamInGroup(group, teamTwo);
+        }
+    }
+
+    #calculateMatchGroupResult(match) {
+        let teamOnePoint = 1;
+        let teamTwoPoint = 1;
+
+        if (match.goalsTeamOne > match.goalsTeamTwo) {
+            teamOnePoint = 3;
+            teamTwoPoint = 0;
+        } else if (match.goalsTeamOne < match.goalsTeamTwo) {
+            teamOnePoint = 0;
+            teamTwoPoint = 3;
+        } 
+
+        return { teamOnePoint, teamTwoPoint }
+    }
+
+
+    // procura o time correspondente e muta o array de times com novos pontos
+    #mutateTeamInGroup(group, newTeam) {
+            const arrTeams = this.groups.get(group);
+
+            for (let i = 0; i < arrTeams.length; i++) {
+                if (arrTeams[i].nome === newTeam.nome) {
+                    arrTeams[i] = newTeam;
+            }
+        }
+    }
+    
+
+    #compareTeamsPoints(teamOne, teamTwo) {
+        if (teamOne.points > teamTwoPoints) {
+            return -1;
+        }
+
+        if (teamOne.points < teamTwo.points) {
+            return 1;
+        }
+
+        if (teamOne.goalsDiff > teamTwo.goalsDiff) {
+            return -1;
+        }
+
+        if (teamOne.goalsDiff < teamTwo.goalsDiff) {
+            return 1;
+        }
+
+        // caso os críterios de desempate sejam iguais, gera aleatoriamente um vencedor
+        return Math.random() < 0.5 ? -1 : 1;
+    }
+
+    #calculateGoalsDiff(goalsTeamOne, goalsTeamTwo) {
+        const goalsDiffTeamOne = goalsTeamOne - goalsTeamTwo;
+        const goalsDiffTeamTwo = goalsTeamTwo - goalsTeamOne;
+
+        return {
+            goalsDiffTeamOne, goalsDiffTeamTwo
+        }
+    }
+
+    #runMatch(match) {
         let goalsTeamOne = 0; 
         let goalsTeamTwo = 0;
 
@@ -127,7 +221,7 @@ export class WorldCup {
         }
 
         if (goalsTeamOne === goalsTeamTwo && !this.isGroupStage) {
-            this.runPenalty();
+            this.#runPenalty();
         }
 
         match.goalsTeamOne = goalsTeamOne;
@@ -136,7 +230,9 @@ export class WorldCup {
         return match;
     }
 
-    runPenalty() {
-
+    #runPenalty() {
+       console.log("Penalty...") 
     }
+
+    
 }
