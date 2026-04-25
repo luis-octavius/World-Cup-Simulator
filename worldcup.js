@@ -139,18 +139,17 @@ export class WorldCup {
     }
 
     createFinalMatches() {
-        const teams = []
+        const classifiedGroups = Array.from(this.#groups.values());
+        let matchId = 1;
 
-        for (const groupTeams of this.#groups.values()) {
-           teams.push(...groupTeams); 
-        }
+        // monta as oitavas em pares de grupos consecutivos: A x B, C x D, etc.
+        // 1o de um grupo enfrenta 2o do outro grupo
+        for (let i = 0; i < classifiedGroups.length; i += 2) {
+            const [firstOne, secondOne] = classifiedGroups[i];
+            const [firstTwo, secondTwo] = classifiedGroups[i + 1];
 
-        for (let i = 0; i < 8; i++) {
-            // seleciona o primeiro do grupo para enfrentar o segundo do grupo seguinte
-            const teamOne = teams[i];
-            const teamTwo = teams[(i + 1) % 8];
-
-            this.#finalMatches.set(i + 1, this.createMatch(teamOne, teamTwo));
+            this.#finalMatches.set(matchId++, this.createMatch(firstOne, secondTwo));
+            this.#finalMatches.set(matchId++, this.createMatch(firstTwo, secondOne));
         }
 
         this.#isGroupStage = false;

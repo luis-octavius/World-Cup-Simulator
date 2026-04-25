@@ -29,7 +29,7 @@ export async function init() {
         await delay(4000);
         renderFinalStages(results.finalMatches, finalsContainer);
 
-        buttonInit.textContent = "Simulação concluida";
+        buttonInit.textContent = "Simulação concluída";
     }, { once: true });
 }
 
