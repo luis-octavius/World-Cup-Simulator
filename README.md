@@ -90,7 +90,3 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 ## Contato
 
 Luis Octávio - luisoctavius.sc@gmail.com
-
-3. Adicione uma seção de "Demo" com link para versão online
-4. Coloque um GIF animado mostrando a simulação
-5. Liste as dependências (se houver)
